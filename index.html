@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Academic Query Portal</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f4f8;
+            color: #26344a;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 210px;
+            padding: 20px;
+            background: #172b4d;
+            color: white;
+        }
+
+        .sidebar h2 {
+            margin-top: 0;
+        }
+
+        .sidebar button {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            padding: 11px;
+            border: 0;
+            background: #294267;
+            color: white;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .main {
+            flex: 1;
+            padding: 22px;
+        }
+
+        .topbar, .panel, .card, .ticket {
+            background: white;
+            padding: 16px;
+            margin-bottom: 18px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cards {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .card {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        input, select, textarea {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 7px 0 14px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 90px;
+        }
+
+        button.action {
+            padding: 9px 13px;
+            border: 0;
+            border-radius: 4px;
+            background: #3157d5;
+            color: white;
+            cursor: pointer;
+        }
+
+        button.action:hover {
+            background: #203f9c;
+        }
+
+        .ticket {
+            border-left: 5px solid #3157d5;
+        }
+
+        .ticket h3 {
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .message {
+            color: green;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .layout {
+                display: block;
+            }
+
+            .sidebar {
+                width: auto;
+            }
+
+            .sidebar button {
+                display: inline-block;
+                width: auto;
+            }
+
+            .cards {
+                display: block;
+            }
+
+            .card {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <div class="sidebar">
+        <h2>CampusQuery</h2>
+        <button onclick="showPage('dashboard')">Dashboard</button>
+        <button onclick="showPage('queries')">My Queries</button>
+        <button onclick="showPage('newQuery')">New Query</button>
+        <button onclick="showPage('admin')">Admin Dashboard</button>
+    </div>
+
+    <div class="main">
+
+        <div class="topbar">
+            <strong>Academic Query Resolution Portal</strong>
+            <span id="message" class="message"></span>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="view active">
+            <h1>Dashboard</h1>
+            <p>Check the status of your academic queries.</p>
+
+            <div class="cards">
+                <div class="card">
+                    <h3 id="totalCount">0</h3>
+                    <p>Total Tickets</p>
+                </div>
+                <div class="card">
+                    <h3 id="openCount">0</h3>
+                    <p>Open Tickets</p>
+                </div>
+                <div class="card">
+                    <h3 id="resolvedCount">0</h3>
+                    <p>Resolved Tickets</p>
+                </div>
+                <div class="card">
+                    <h3 id="escalatedCount">0</h3>
+                    <p>Escalated Tickets</p>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Recent Queries</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket</th>
+                            <th>Category</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTickets"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- My Queries -->
+        <div id="queries" class="view">
+            <h1>My Queries</h1>
+            <p>Open a ticket to update its status, add comments, or view its history.</p>
+            <div id="ticketList"></div>
+        </div>
+
+        <!-- New Query -->
+        <div id="newQuery" class="view">
+            <h1>Create a Query</h1>
+
+            <div class="panel">
+                <form id="queryForm">
+                    <label>Query title</label>
+                    <input id="title" required>
+
+                    <label>Category</label>
+                    <select id="category" required>
+                        <option value="">Choose a category</option>
+                        <option>Course Registration</option>
+                        <option>Examinations</option>
+                        <option>Grades and Transcripts</option>
+                        <option>Fees and Scholarships</option>
+                        <option>Other</option>
+                    </select>
+
+                    <label>Department</label>
+                    <select id="department" required>
+                        <option value="">Choose a department</option>
+                        <option>Registrar's Office</option>
+                        <option>Examination Office</option>
+                        <option>Finance Office</option>
+                        <option>Academic Advising</option>
+                    </select>
+
+                    <label>Query details</label>
+                    <textarea id="description" required></textarea>
+
+                    <label>Attachment (optional)</label>
+                    <input type="file" id="attachment">
+
+                    <button class="action" type="submit">Submit Query</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="admin" class="view">
+            <h1>Admin Dashboard</h1>
+            <p>Summary of tickets assigned to each department.</p>
+            <div class="panel">
+                <div id="departmentSummary"></div>
+            </div>
+            <h2>Manage Tickets</h2>
+            <div id="adminTicketList"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Load saved tickets from the browser
+    let tickets = JSON.parse(localStorage.getItem("tickets")) || [];
+
+    // Show one page and hide the others
+    function showPage(pageName) {
+        let pages = document.querySelectorAll(".view");
+
+        pages.forEach(function(page) {
+            page.classList.remove("active");
+        });
+
+        document.getElementById(pageName).classList.add("active");
+        displayTickets();
+    }
+
+    // Save ticket data in the browser
+    function saveTickets() {
+        localStorage.setItem("tickets", JSON.stringify(tickets));
+    }
+
+    // Show a short notification message
+    function showMessage(text) {
+        document.getElementById("message").textContent = text;
+    }
+
+    // Add a new ticket
+    document.getElementById("queryForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let file = document.getElementById("attachment").files[0];
+        let attachmentName = file ? file.name : "None";
+
+        let ticket = {
+            id: "AQ-" + (1001 + tickets.length),
+            title: document.getElementById("title").value,
+            category: document.getElementById("category").value,
+            department: document.getElementById("department").value,
+            description: document.getElementById("description").value,
+            attachment: attachmentName,
+            status: "Submitted",
+            comments: [],
+            history: ["Ticket submitted at " + new Date().toLocaleString()]
+        };
+
+        tickets.push(ticket);
+        saveTickets();
+        document.getElementById("queryForm").reset();
+
+        showMessage("Ticket submitted successfully.");
+        displayTickets();
+        showPage("queries");
+    });
+
+    // Change a ticket's status
+    function changeStatus(index, newStatus) {
+        tickets[index].status = newStatus;
+        tickets[index].history.push("Status changed to " + newStatus + " at " + new Date().toLocaleString());
+
+        saveTickets();
+        displayTickets();
+        showMessage("Ticket status updated.");
+    }
+
+    // Change the ticket's department
+    function changeDepartment(index, newDepartment) {
+        tickets[index].department = newDepartment;
+        tickets[index].history.push("Assigned to " + newDepartment + " at " + new Date().toLocaleString());
+
+        saveTickets();
+        displayTickets();
+        showMessage("Department updated.");
+    }
+
+    // Add a comment to a ticket
+    function addComment(index) {
+        let commentBox = document.getElementById("comment" + index);
+        let comment = commentBox.value;
+
+        if (comment && comment.trim() !== "") {
+            // Add timestamp to comment
+            let timestamp = new Date().toLocaleString();
+            let commentWithTimestamp = "[" + timestamp + "] " + comment;
+            
+            tickets[index].comments.push(commentWithTimestamp);
+            tickets[index].history.push("A comment was added: " + comment);
+
+            saveTickets();
+            displayTickets();
+            showMessage("Comment added.");
+            commentBox.value = ""; // Clear the comment box
+        }
+    }
+
+    // Escalate a ticket
+    function escalateTicket(index) {
+        tickets[index].status = "Escalated";
+        tickets[index].history.push("Ticket escalated at " + new Date().toLocaleString());
+
+        saveTickets();
+        displayTickets();
+        showMessage("Ticket escalated.");
+    }
+
+    // Create options for a select menu
+    function makeOptions(items, selectedItem) {
+        let result = "";
+
+        items.forEach(function(item) {
+            if (item === selectedItem) {
+                result += "<option selected>" + item + "</option>";
+            } else {
+                result += "<option>" + item + "</option>";
+            }
+        });
+
+        return result;
+    }
+
+    // Display tickets and update the dashboard
+    function displayTickets() {
+        let ticketHTML = "";
+        let totalOpen = 0;
+        let totalResolved = 0;
+        let totalEscalated = 0;
+
+        tickets.forEach(function(ticket, index) {
+            if (ticket.status === "Resolved") {
+                totalResolved++;
+            } else {
+                totalOpen++;
+            }
+
+            if (ticket.status === "Escalated") {
+                totalEscalated++;
+            }
+
+            let comments = "";
+            ticket.comments.forEach(function(comment) {
+                comments += "<li>" + comment + "</li>";
+            });
+
+            let history = "";
+            ticket.history.forEach(function(item) {
+                history += "<li>" + item + "</li>";
+            });
+
+            ticketHTML += `
+                <div class="ticket">
+                    <h3>${ticket.title}</h3>
+                    <p><b>Ticket:</b> ${ticket.id}</p>
+                    <p><b>Category:</b> ${ticket.category}</p>
+                    <p><b>Details:</b> ${ticket.description}</p>
+                    <p><b>Attachment:</b> ${ticket.attachment}</p>
+                    <p><b>Status:</b> ${ticket.status}</p>
+
+                    <label>Update status</label>
+                    <select onchange="changeStatus(${index}, this.value)">
+                        ${makeOptions(
+                            ["Submitted", "In Progress", "Waiting for Student", "Resolved", "Escalated"],
+                            ticket.status
+                        )}
+                    </select>
+
+                    <label>Assigned department</label>
+                    <select onchange="changeDepartment(${index}, this.value)">
+                        ${makeOptions(
+                            ["Registrar's Office", "Examination Office", "Finance Office", "Academic Advising"],
+                            ticket.department
+                        )}
+                    </select>
+
+                    <button class="action" onclick="escalateTicket(${index})">
+                        Escalate Ticket
+                    </button>
+
+                    <h4>Comments</h4>
+                    <ul>${comments}</ul>
+                    <input id="comment${index}" placeholder="Write a comment">
+                    <button class="action" onclick="addComment(${index})">Add Comment</button>
+
+                    <h4>Ticket History</h4>
+                    <ul>${history}</ul>
+                </div>
+            `;
+        });
+
+        if (tickets.length === 0) {
+            ticketHTML = "<p>No tickets have been submitted yet.</p>";
+        }
+
+        document.getElementById("ticketList").innerHTML = ticketHTML;
+        document.getElementById("adminTicketList").innerHTML = ticketHTML;
+
+        document.getElementById("totalCount").textContent = tickets.length;
+        document.getElementById("openCount").textContent = totalOpen;
+        document.getElementById("resolvedCount").textContent = totalResolved;
+        document.getElementById("escalatedCount").textContent = totalEscalated;
+
+        // Show the latest five tickets on the dashboard
+        let recentHTML = "";
+
+        tickets.slice(-5).reverse().forEach(function(ticket) {
+            recentHTML += `
+                <tr>
+                    <td>${ticket.id} - ${ticket.title}</td>
+                    <td>${ticket.category}</td>
+                    <td>${ticket.department}</td>
+                    <td>${ticket.status}</td>
+                </tr>
+            `;
+        });
+
+        if (tickets.length === 0) {
+            recentHTML = "<tr><td colspan='4'>No tickets yet.</td></tr>";
+        }
+
+        document.getElementById("recentTickets").innerHTML = recentHTML;
+
+        // Count tickets assigned to each department
+        let departments = [
+            "Registrar's Office",
+            "Examination Office",
+            "Finance Office",
+            "Academic Advising"
+        ];
+
+        let departmentHTML = "";
+
+        departments.forEach(function(department) {
+            let count = tickets.filter(function(ticket) {
+                return ticket.department === department;
+            }).length;
+
+            departmentHTML += "<p>" + department + ": " + count + " ticket(s)</p>";
+        });
+
+        document.getElementById("departmentSummary").innerHTML = departmentHTML;
+    }
+
+    // Display saved tickets when the page opens
+    displayTickets();
+</script>
+
+</body>
+</html>
